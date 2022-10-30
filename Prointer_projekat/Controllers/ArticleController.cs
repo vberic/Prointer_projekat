@@ -93,16 +93,16 @@ public class ArticleController : ControllerBase
     
     [HttpPost]
     [Route("deleteArticle")]
-    public IActionResult DeleteArticle(int articleId)
+    public IActionResult DeleteArticle(string articleName)
     {
         if (!new CookieAuthorize(_config).ValidateCookie(Request))
             return Unauthorized();
         
-        var article = _context.Articles.FirstOrDefault(art => art.ArticleId == articleId);
+        var article = _context.Articles.FirstOrDefault(art => art.Name == articleName);
         if(article == null)
             return BadRequest(new { message = "Article not found" });
 
-        var relations = _context.Relations.Where(rel => rel.ArticleId == articleId);
+        var relations = _context.Relations.Where(rel => rel.ArticleId == article.ArticleId);
         
         // Cascade delete
         foreach (var relation in relations)
@@ -225,7 +225,7 @@ public class ArticleController : ControllerBase
                 Name = article.Name,
                 Unit = article.Unit,
                 Manufacturer = article.Manufacturer,
-                Attributes = new Dictionary<string, string>()
+                Attributes = new List<KeyValuePair<string, string>>()
             };
             var attributes = (from r in _context.Relations
                 join at in _context.Attributes on r.AttributeId equals at.AttributeId
@@ -237,7 +237,7 @@ public class ArticleController : ControllerBase
                 });
             foreach (var attribute in attributes)
             {
-                res.Attributes.Add(attribute.AttributeName, attribute.Value);
+                res.Attributes.Add(new KeyValuePair<string, string>(attribute.AttributeName, attribute.Value));
             }
             
             result.Add(res);
@@ -274,7 +274,7 @@ public class ArticleController : ControllerBase
                     Name = article.Name,
                     Unit = article.Unit,
                     Manufacturer = article.Manufacturer,
-                    Attributes = new Dictionary<string, string>()
+                    Attributes = new List<KeyValuePair<string, string>>()
                 };
                 var attributes = (from r in _context.Relations
                     join at in _context.Attributes on r.AttributeId equals at.AttributeId
@@ -286,7 +286,7 @@ public class ArticleController : ControllerBase
                     });
                 foreach (var attribute in attributes)
                 {
-                    res.Attributes.Add(attribute.AttributeName, attribute.Value);
+                    res.Attributes.Add(new KeyValuePair<string, string>(attribute.AttributeName, attribute.Value));
                 }
             
                 result.Add(res);
@@ -297,14 +297,22 @@ public class ArticleController : ControllerBase
             var articles = (from r in _context.Relations
                 join at in _context.Attributes on r.AttributeId equals at.AttributeId
                 join ar in _context.Articles on r.ArticleId equals ar.ArticleId
-                where at.Name == attributeName
+                where at.Name == attributeName  orderby r.Value  
                 select new
                 {
                     ar.ArticleId,
                     ar.Name,
                     ar.Unit,
                     ar.Manufacturer
-                }).ToList();
+                } into x group x by new {  x.ArticleId, x.Name, x.Unit, x.Manufacturer } into g 
+                    select new
+                    {
+                        g.Key.ArticleId,
+                        g.Key.Name,
+                        g.Key.Unit,
+                        g.Key.Manufacturer
+                    }
+                ).ToList();
             
             foreach (var article in articles)
             {
@@ -314,7 +322,7 @@ public class ArticleController : ControllerBase
                     Name = article.Name,
                     Unit = article.Unit,
                     Manufacturer = article.Manufacturer,
-                    Attributes = new Dictionary<string, string>()
+                    Attributes = new List<KeyValuePair<string, string>>()
                 };
                 var attributes = (from r in _context.Relations
                     join at in _context.Attributes on r.AttributeId equals at.AttributeId
@@ -326,7 +334,7 @@ public class ArticleController : ControllerBase
                     });
                 foreach (var attribute in attributes)
                 {
-                    res.Attributes.Add(attribute.AttributeName, attribute.Value);
+                    res.Attributes.Add(new KeyValuePair<string, string>(attribute.AttributeName, attribute.Value));
                 }
             
                 result.Add(res);
