@@ -6,13 +6,13 @@ using Prointer_projekat.Models;
 namespace Prointer_projekat.Controllers;
 
 [ApiController]
-[Route("users")]
 public class UserController : ControllerBase
 {
     private readonly ConnectionManager _context = new();
         
         
     [HttpPost]
+    [Route("register")]
     public IActionResult Registration(NewUser newUser)
     {
         //provjera da li se lozinke poklapaju

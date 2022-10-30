@@ -1,7 +1,6 @@
 
 
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Principal;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
@@ -10,7 +9,7 @@ namespace Prointer_projekat.Helper;
 
 public class CookieAuthorize
 {
-  private IConfiguration _config;
+  private readonly IConfiguration _config;
   public CookieAuthorize(IConfiguration config)
   {
     _config = config;
@@ -44,7 +43,7 @@ public class CookieAuthorize
     {
       tokenHandler.ValidateToken(authToken, validationParameters, out validatedToken);
     }
-    catch (Exception e)
+    catch (Exception)
     {
       return false;
     }

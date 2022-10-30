@@ -8,17 +8,17 @@ public record NewUser
     [Required] 
     [DataType(DataType.EmailAddress)]
     [EmailAddress] 
-    public string Email { get; set; }
+    public string Email { get; set; }= null!;
     [Required]
-    public string Name { get; set; } 
+    public string Name { get; set; } = null!;
     [Required]
-    public string Surname { get; set; }
+    public string Surname { get; set; }= null!;
     [Required]
-    public string Password { get; set; } 
+    public string Password { get; set; } = null!;
     [Required]
-    public string RepeatedPass { get; set; } 
+    public string RepeatedPass { get; set; } = null!;
     [Required]
     [DataType(DataType.PhoneNumber)]
     [Phone]
-    public string PhoneNumber { get; set; } 
+    public string PhoneNumber { get; set; } = null!;
 }

@@ -12,18 +12,18 @@ using Prointer_projekat.Models;
 namespace Prointer_projekat.Controllers;
 
 [ApiController]
-[Route("login")]
-public class LoginController : ControllerBase
+public class AccessController : ControllerBase
 {
     private IConfiguration _config;
     private readonly ConnectionManager _context = new();
-    public LoginController(IConfiguration config)
+    public AccessController(IConfiguration config)
     {
         _config = config;
     }
 
     [AllowAnonymous]
     [HttpPost]
+    [Route("login")]
     public IActionResult Login(UserLogin userLogin)
     {
         var user = Authenticate(userLogin);
@@ -39,6 +39,14 @@ public class LoginController : ControllerBase
         }
 
         return Unauthorized();
+    }
+    
+    [HttpPost]
+    [Route("logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("jwt");
+        return Ok(new{message ="Logout successful" });
     }
 
     private string Generate(User user)

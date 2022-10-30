@@ -1,17 +1,16 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Prointer_projekat.Models;
+namespace Prointer_projekat.DTOs;
 
-public record Article
+public record NewArticle
 {
     [Required]
-    [Key][DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int ArticleId { get; set; }
-
+    [Required]
     public string Name { get; set; } = null!;
+    [Required]
     public string Unit { get; set; } = null!;
+    [Required]
     public string Manufacturer { get; set; } = null!;
-    
-    public ICollection<Relation> Relations { get; set; } = null!;
+
 }
