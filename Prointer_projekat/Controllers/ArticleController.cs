@@ -160,14 +160,17 @@ public class ArticleController : ControllerBase
 
         if (remove.Value != null)
         {
-            if(_context.Relations.FirstOrDefault(rel => rel.Value == remove.Value) == null)
+            var relation = _context.Relations.FirstOrDefault(rel =>
+                rel.ArticleId == article.ArticleId && rel.AttributeId == attribute.AttributeId &&
+                rel.Value.Equals(remove.Value));
+            if( relation == null)
                 return BadRequest(new { message = "Attribute with given value not found" });
             
-            _context.Relations.Remove(_context.Relations.FirstOrDefault(rel => rel.ArticleId == article.ArticleId && rel.AttributeId == attribute.AttributeId && rel.Value.Equals(remove.Value))!);
+            _context.Relations.Remove(relation);
             _context.SaveChanges();
             return Ok(new {message = "Deleted attribute"}); 
         }
-
+        
         foreach (var relation in relations)
             _context.Relations.Remove(relation);
         _context.SaveChanges();
@@ -186,6 +189,14 @@ public class ArticleController : ControllerBase
         var attribute = _context.Attributes.FirstOrDefault(ar => ar.Name.Equals(update.AttributeName));
         if (attribute == null)
             return BadRequest(new { message = "Attribute not found" });
+        
+        switch (attribute.IsNumerical)
+        {
+            case true when !double.TryParse(update.NewValue, out _):
+                return BadRequest(new { message = "Attribute value should be a number" });
+            case false when double.TryParse(update.NewValue, out _):
+                return BadRequest(new { message = "Attribute value should be alphanumeric" });
+        }
 
         var relation = _context.Relations.FirstOrDefault(rel =>
             rel.ArticleId == article.ArticleId && rel.AttributeId == attribute.AttributeId &&
